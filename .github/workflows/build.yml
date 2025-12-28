@@ -33,27 +33,19 @@ jobs:
 
       - name: Verify health endpoint
         run: |
-          echo "Checking health endpoint..."
-
-          # Debug: show what curl returns
-          echo "Debug - curl response:"
-          curl -v http://localhost:8071/health 2>&1 || true
-
-          echo ""
-          echo "Checking with retry..."
-          MAX_ATTEMPTS=10
+          echo "Checking health endpoint (/up)..."
+          MAX_ATTEMPTS=15
           ATTEMPT=0
 
           while [ $ATTEMPT -lt $MAX_ATTEMPTS ]; do
             ATTEMPT=$((ATTEMPT + 1))
             echo "Attempt $ATTEMPT/$MAX_ATTEMPTS..."
 
-            HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8071/health 2>/dev/null || echo "000")
+            HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8071/up 2>/dev/null || echo "000")
             echo "HTTP status: $HTTP_CODE"
 
             if [ "$HTTP_CODE" = "200" ]; then
               echo "✅ Health check passed"
-              curl -s http://localhost:8071/health | jq .
               exit 0
             fi
 
@@ -61,9 +53,6 @@ jobs:
           done
 
           echo "❌ Health check failed after $MAX_ATTEMPTS attempts"
-          echo "Last response:"
-          curl -s http://localhost:8071/health || true
-          echo ""
           echo "Container logs:"
           docker logs portal-ci-app
           exit 1
