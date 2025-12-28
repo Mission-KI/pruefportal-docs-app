@@ -1,0 +1,57 @@
+name: portal
+
+services:
+  db:
+    image: postgres:17.5
+    container_name: portal-db
+    restart: always
+    ports:
+      - "5643:5432"
+    volumes:
+      - portal_postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=portal_db
+      - POSTGRES_USER=portal_user
+      - POSTGRES_PASSWORD=portal_password
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d portal_db -U portal_user"]
+      interval: 1s
+      timeout: 5s
+      retries: 10
+    networks:
+      - portal-network
+
+  app:
+    build: .
+    container_name: portal-app
+    ports:
+      - "8071:8071"
+      - "5173:5173"
+    volumes:
+      - .:/app
+      - portal_vendor:/app/vendor
+      - portal_node_modules:/app/node_modules
+    working_dir: /app
+    networks:
+      - portal-network
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      - DB_CONNECTION=pgsql
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_DATABASE=portal_db
+      - DB_USERNAME=portal_user
+      - DB_PASSWORD=portal_password
+
+networks:
+  portal-network:
+    driver: bridge
+
+volumes:
+  portal_postgres_data:
+  portal_vendor:
+  portal_node_modules:

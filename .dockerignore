@@ -1,0 +1,50 @@
+# Dependencies
+node_modules/
+vendor/
+
+# Git
+.git/
+.github/
+.gitignore
+.gitattributes
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Laravel storage
+storage/logs/*
+storage/framework/cache/*
+storage/framework/sessions/*
+storage/framework/views/*
+bootstrap/cache/*
+
+# Tests
+tests/
+phpunit.xml
+.phpunit.result.cache
+
+# Development
+*.md
+README.md
+.editorconfig
+.eslintrc
+eslint.config.js
+prettier.config.js
+tsconfig.json
+vite.config.ts.timestamp-*
+
+# IDE
+.vscode/
+.idea/
+
+# Docker
+docker-compose*.yml
+Dockerfile
+.dockerignore
+
+# Build artifacts
+public/hot
+public/storage
+public/build

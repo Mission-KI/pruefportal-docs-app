@@ -1,0 +1,153 @@
+@font-face {
+  font-family: "Baikal";
+  src: url("/fonts/Baikal-subset.woff2");
+  font-weight: 1 950;
+  font-stretch: 1% 200%;
+  font-display: swap;
+  unicode-range: U+0-FF, U+131, U+152, U+153, U+2BB, U+2BC, U+2C6, U+2DA, U+2DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+:root {
+  --spacing: 0.28rem;
+  --mki-radius-lg: 3rem;
+  /*--radius-md: 0;
+  --radius-xl: 0; */
+  --mki-light-grey: rgb(247, 243, 242);
+  --mki-light-grey-200: #ebe0dd;
+  --mki-light-grey-300: #ddc9c4;
+  --mki-light-grey-400: #c7a9a2;
+  --mki-deep-purple: rgb(60, 4, 131);
+  --mki-light-purple: rgb(121, 72, 207);
+  --mki-yellow: rgb(251, 243, 51);
+  --mki-light-purple-low-transp: rgba(121, 72, 207, 0.1);
+  --mki-text-black: rgb(0, 0, 0);
+  --mki-text-white: rgb(255, 255, 255);
+  --default-font-family: Baikal, 'Inter Variable', ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"
+}
+
+.fi-ta-ctn {
+  border-radius: 0;
+  box-shadow: none;
+  border: 0;
+  background: var(--mki-light-grey);
+}
+
+.fi-ta-row.fi-clickable:hover {
+  background-color:var(--mki-light-purple-low-transp);
+}
+
+.fi-ta-empty-state .fi-ta-empty-state-icon-bg {
+  background-color:var(--mki-deep-purple);
+}
+
+.fi-ta-empty-state .fi-ta-empty-state-icon-bg .fi-icon{
+  color: white;
+}
+
+.fi-ta-text-item {
+  line-height: 1.2;
+}
+.fi-ta-text-description {
+  font-size: var(--text-xs);
+}
+
+.fi-ta-search-field .fi-input-wrp,
+.fi-pagination .fi-input-wrp {
+  border-radius: var(--mki-radius-lg);
+  box-shadow: none;
+  border: 2px solid var(--mki-deep-purple);
+  background-color: var(--mki-light-grey);
+
+}
+
+.fi-pagination .fi-input-wrp {
+  /*border-color: var(--mki-light-grey-200);*/
+
+}
+
+.fi-pagination .fi-input-wrp .fi-input-wrp-label,
+.fi-pagination .fi-input-wrp .fi-select-input,
+.fi-pagination .fi-pagination-overview {
+  /*color: var(--mki-light-grey-400);*/
+}
+
+.fi-pagination select.fi-select-input option {
+  background-color: var(--mki-light-grey) !important;
+}
+
+
+.fi-ta {
+  margin: 0 -1.5em;
+}
+
+.fi-ta .fi-icon-btn {
+  color: var(--mki-deep-purple);
+}
+
+.fi-ta .fi-icon-btn>.fi-icon-btn-badge-ctn {
+  background-color: var(--mki-light-grey);
+}
+
+.fi-input-wrp .fi-input-wrp-label:where(.dark, .dark *),
+:is(.fi-input-wrp .fi-input-wrp-prefix, .fi-input-wrp .fi-input-wrp-suffix) .fi-icon {
+  color: var(--mki-deep-purple);
+}
+
+.fi-ta .fi-badge.fi-color {
+  background: var(--mki-deep-purple);
+  border: 0 !important;
+  color: var(--mki-text-white) !important;
+}
+
+.fi-ta .fi-badge.fi-color .fi-badge-delete-btn>.fi-icon {
+  color: var(--mki-text-white) !important;
+}
+
+.fi-ta-search-field input.fi-input {
+  font-size: 110%;
+  font-weight: 600;
+  color: var(--mki-deep-purple);
+}
+
+.fi-ta-table tr {
+  border-width: 0;
+}
+
+.fi-ta-table>thead>tr,
+.fi-ta-ctn .fi-ta-filter-indicators {
+  background: transparent;
+  border: none;
+}
+
+.fi-ta-header-ctn,
+.fi-ta-table>thead {
+  border: none;
+}
+
+
+
+.fi-page {
+  background-color: var(--mki-light-grey);
+  padding: 1em 1.5em;
+  margin-top: 2em;
+}
+
+.fi-header-heading {
+  color: var(--mki-deep-purple);
+  font-size: clamp(1.75rem, 1.5204rem + 0.9796vw, 2.5rem);
+  font-weight: 600;
+  line-height: 1.2;
+  font-variation-settings: "wdth" 108;
+}
+
+.fi-breadcrumbs ol li {
+  color: var(--mki-light-purple);
+  font-variation-settings: "wdth" 108;
+  font-size: clamp(1rem, .9617rem + .1633vw, 1.125rem);
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.fi-body {
+  background-color: #fff;
+}
