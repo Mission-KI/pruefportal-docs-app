@@ -1,6 +1,27 @@
 # Mission KI Documentation App
 
-Laravel 11 + Vue 3 + Filament admin panel for MISSION KI quality standard documentation.
+A documentation management system for AI quality standards, built as part of the [MISSION KI](https://mission-ki.de) initiative — a German government-funded project to promote responsible AI development.
+
+| | |
+|---|---|
+| **Stack** | Laravel 11 · Vue 3 · Filament · PostgreSQL |
+| **Status** | Pre-production (active development) |
+| **License** | [MIT](LICENSE) |
+
+## What This App Does
+
+- Manages structured documentation for AI quality assessment criteria
+- Provides an admin panel (Filament) for content editors
+- Serves documentation via a Vue 3 + Inertia.js frontend
+
+## Prerequisites
+
+- **Docker Desktop** (v20+) with Docker Compose v2
+- **Git**
+- 4GB+ available RAM for containers
+- macOS, Linux, or Windows with WSL2
+
+All other dependencies (PHP 8.4, Node 22, Composer) run inside Docker.
 
 ## Quick Start
 
@@ -12,11 +33,22 @@ Access the app at **http://localhost:8071**
 
 Database: `localhost:5643` (user: `portal_user`, password: `portal_password`)
 
-### Seeding the database
+### Seeding the Database
 
 ```bash
 make seed-fresh  # WARNING: Deletes all data, runs migrations, then seeds
 ```
+
+### Admin Login
+
+After seeding, an admin user is created. Configure credentials in `.env` before seeding:
+
+```bash
+SEED_ADMIN_EMAIL=admin@example.test
+SEED_ADMIN_PASSWORD=your-password-here
+```
+
+If `SEED_ADMIN_PASSWORD` is not set, a random 32-character password is generated (check the seeder output or reset with a known password).
 
 ## Common Commands
 
@@ -101,8 +133,8 @@ Copy `.env.example` to `.env` for local development. Key settings:
 
 ## Contributing
 
-See [CONTRIBUTORS.md](CONTRIBUTORS.md) for the list of contributors.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for contribution guidelines and [CONTRIBUTORS.md](CONTRIBUTORS.md) for the list of contributors.
 
 ## License
 
-This project is part of the [MISSION KI](https://mission-ki.de) initiative.
+This project is licensed under the [MIT License](LICENSE).
