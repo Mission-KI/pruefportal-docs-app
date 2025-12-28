@@ -26,9 +26,17 @@ use Illuminate\Support\Facades\Blade;
 
 
 
+/**
+ * Public-facing Table Panel for the MISSION KI quality standard documentation.
+ *
+ * SECURITY NOTE: This panel is INTENTIONALLY PUBLIC (no authentication required).
+ * It serves as a read-only reference for the MISSION KI quality standards and methods.
+ * All data displayed here is meant to be publicly accessible.
+ *
+ * The Admin panel (AdminPanelProvider) requires authentication for data management.
+ */
 class TablePanelProvider extends PanelProvider
 {
-
     public function panel(Panel $panel): Panel
     {
         $colors = [
@@ -71,7 +79,7 @@ class TablePanelProvider extends PanelProvider
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,
                 StartSession::class,
-                #AuthenticateSession::class,
+                // AuthenticateSession omitted - public panel (see class docblock)
                 ShareErrorsFromSession::class,
                 VerifyCsrfToken::class,
                 SubstituteBindings::class,
@@ -85,8 +93,6 @@ class TablePanelProvider extends PanelProvider
                 SpatieTranslatablePlugin::make()
                     ->defaultLocales(['de']),
             );
-        #->authMiddleware([
-        #    Authenticate::class,
-        #]);
+            // No authMiddleware - this panel is intentionally public (see class docblock)
     }
 }

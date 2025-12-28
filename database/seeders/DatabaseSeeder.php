@@ -15,10 +15,12 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
 
+        // Create default admin user for development/seeding
+        // In production, set SEED_ADMIN_EMAIL and SEED_ADMIN_PASSWORD environment variables
         DB::table('users')->insert([
-            'name'=> 'test',
-            'email' => 'phihes@gmail.com',
-            'password' => Hash::make('test!123')
+            'name' => 'Admin',
+            'email' => env('SEED_ADMIN_EMAIL', 'admin@example.test'),
+            'password' => Hash::make(env('SEED_ADMIN_PASSWORD', Str::random(32))),
         ]);
 
         //DB::statement('SET FOREIGN_KEY_CHECKS=0;');

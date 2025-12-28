@@ -17,13 +17,19 @@ Route::get('/health', function () {
             'database' => 'connected'
         ], 200);
     } catch (\Exception $e) {
-        return response()->json([
+        $response = [
             'status' => 'unhealthy',
             'app' => 'docs-app',
             'timestamp' => now()->toIso8601String(),
             'database' => 'disconnected',
-            'error' => $e->getMessage()
-        ], 503);
+        ];
+
+        // Only expose error details in local/debug environment
+        if (app()->environment('local') || config('app.debug')) {
+            $response['error'] = $e->getMessage();
+        }
+
+        return response()->json($response, 503);
     }
 });
 
