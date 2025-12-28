@@ -38,10 +38,20 @@ jobs:
         run: composer install --no-interaction --prefer-dist --optimize-autoloader
 
       - name: Copy Environment File
-        run: cp .env.example .env
+        run: |
+          cp .env.example .env
+          # Use SQLite for CI
+          sed -i 's/DB_CONNECTION=pgsql/DB_CONNECTION=sqlite/' .env
+          sed -i 's/DB_HOST=db/DB_HOST=/' .env
+
+      - name: Create SQLite Database
+        run: touch database/database.sqlite
 
       - name: Generate Application Key
         run: php artisan key:generate
+
+      - name: Run Migrations
+        run: php artisan migrate --force
 
       - name: Generate Wayfinder Types
         run: php artisan wayfinder:generate --with-form
