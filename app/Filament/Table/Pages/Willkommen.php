@@ -24,13 +24,26 @@ class Willkommen extends Page
 
     public function getSubheading(): Htmlable|string|null
     {
+        $version = $this->getAppVersion();
+
         return new HTMLString('
-        Willkommen in der offiziellen Dokumentation des <a
+        Willkommen in der offiziellen Dokumentation (Version ' . $version . ') des <a
                 href="https://pruefportal.mission-ki.de/"><strong>Prüfportals
                     von MISSION KI</strong></a>.<br>Hier finden Sie alles, was Sie benötigen, um das Portal effektiv
             zu nutzen, Prüfungen durchzuführen und die Qualität Ihrer KI-Anwendungen nach dem <strong>MISSION KI
                 Qualitätsstandard</strong> zu bewerten.');
-    }   
-   
+    }
+
+    protected function getAppVersion(): string
+    {
+        $packageJsonPath = base_path('package.json');
+
+        if (file_exists($packageJsonPath)) {
+            $packageJson = json_decode(file_get_contents($packageJsonPath), true);
+            return $packageJson['version'] ?? 'unknown';
+        }
+
+        return 'unknown';
+    }
 
 }
