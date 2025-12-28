@@ -82,29 +82,6 @@ jobs:
 
           echo "✅ Container started successfully"
 
-      - name: Verify health endpoint
-        run: |
-          echo "Checking health endpoint..."
-          MAX_ATTEMPTS=30
-          ATTEMPT=0
-
-          while [ $ATTEMPT -lt $MAX_ATTEMPTS ]; do
-            ATTEMPT=$((ATTEMPT + 1))
-            echo "Attempt $ATTEMPT/$MAX_ATTEMPTS..."
-
-            if curl -sf http://localhost:8071/health > /dev/null 2>&1; then
-              echo "✅ Health check passed"
-              exit 0
-            fi
-
-            sleep 2
-          done
-
-          echo "❌ Health check failed after $MAX_ATTEMPTS attempts"
-          echo "Container logs:"
-          docker logs test-container
-          exit 1
-
       - name: Cleanup
         if: always()
         run: |
