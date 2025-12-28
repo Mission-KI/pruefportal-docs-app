@@ -44,12 +44,19 @@ COPY . .
 # Create minimal .env if it doesn't exist (needed for artisan commands)
 RUN if [ ! -f .env ]; then cp .env.example .env 2>/dev/null || true; fi
 
+# Ensure Laravel storage directories exist (required for caching)
+RUN mkdir -p /app/storage/framework/cache \
+    && mkdir -p /app/storage/framework/sessions \
+    && mkdir -p /app/storage/framework/views \
+    && mkdir -p /app/storage/logs \
+    && mkdir -p /app/bootstrap/cache
+
 # Run composer scripts now that artisan is available
 RUN composer run-script post-autoload-dump --no-interaction || true
 
 # Set proper permissions for Laravel
-RUN chown -R www-data:www-data /app/storage /app/bootstrap/cache || true \
-    && chmod -R 775 /app/storage /app/bootstrap/cache || true
+RUN chown -R www-data:www-data /app/storage /app/bootstrap/cache \
+    && chmod -R 775 /app/storage /app/bootstrap/cache
 
 # Expose ports
 EXPOSE 8071 5173
