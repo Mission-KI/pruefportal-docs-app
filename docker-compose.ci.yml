@@ -35,6 +35,8 @@ services:
       - DB_DATABASE=portal_db
       - DB_USERNAME=portal_user
       - DB_PASSWORD=portal_password
+      - SESSION_DRIVER=file
+      - CACHE_STORE=file
 
 networks:
   portal-ci-network:
