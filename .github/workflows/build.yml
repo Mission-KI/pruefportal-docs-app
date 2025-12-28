@@ -12,78 +12,65 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Build Docker image
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          push: false
-          load: true
-          tags: pruefportal-docs-app:test
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-
-      - name: Create test environment file
+      - name: Create .env file
         run: |
+          cp .env.example .env
+          # Generate a random APP_KEY
           APP_KEY=$(openssl rand -base64 32)
-          cat > .env.test << EOF
-          APP_NAME="Test"
-          APP_ENV=testing
-          APP_KEY=base64:${APP_KEY}
-          APP_DEBUG=true
-          APP_URL=http://localhost:8071
-          LOG_CHANNEL=stderr
-          LOG_LEVEL=error
-          SESSION_DRIVER=file
-          CACHE_STORE=file
-          QUEUE_CONNECTION=sync
-          DB_CONNECTION=sqlite
-          DB_DATABASE=:memory:
-          EOF
-          # Remove leading whitespace from each line
-          sed -i 's/^[[:space:]]*//' .env.test
-          echo "Generated .env.test:"
-          cat .env.test
+          sed -i "s|APP_KEY=|APP_KEY=base64:${APP_KEY}|" .env
 
-      - name: Run container and verify startup
+      - name: Build and start services
+        run: docker compose -f docker-compose.dev.yml up -d --build
+
+      - name: Wait for database to be healthy
         run: |
-          echo "Starting container..."
-          docker run -d \
-            --name test-container \
-            --env-file .env.test \
-            -p 8071:8071 \
-            pruefportal-docs-app:test
+          echo "Waiting for database to become healthy..."
+          for i in {1..60}; do
+            STATUS=$(docker inspect -f '{{.State.Health.Status}}' portal-db 2>/dev/null || echo "unknown")
+            if [ "$STATUS" = "healthy" ]; then
+              echo "✅ Database is healthy"
+              break
+            fi
+            if [ "$STATUS" = "unhealthy" ]; then
+              echo "❌ Database reported unhealthy"
+              docker logs portal-db
+              exit 1
+            fi
+            echo "Waiting... ($i/60) status: $STATUS"
+            sleep 1
+            if [ "$i" -eq 60 ]; then
+              echo "❌ Timed out waiting for database"
+              exit 1
+            fi
+          done
 
-          echo "Waiting for container to stabilize..."
-          sleep 10
+      - name: Run database migrations
+        run: docker compose -f docker-compose.dev.yml exec -T app php artisan migrate --force
 
-          echo "Checking container status..."
-          CONTAINER_STATUS=$(docker inspect --format='{{.State.Status}}' test-container)
-          RESTART_COUNT=$(docker inspect --format='{{.RestartCount}}' test-container)
+      - name: Verify health endpoint
+        run: |
+          echo "Checking health endpoint..."
+          MAX_ATTEMPTS=30
+          ATTEMPT=0
 
-          echo "Container status: $CONTAINER_STATUS"
-          echo "Restart count: $RESTART_COUNT"
+          while [ $ATTEMPT -lt $MAX_ATTEMPTS ]; do
+            ATTEMPT=$((ATTEMPT + 1))
+            echo "Attempt $ATTEMPT/$MAX_ATTEMPTS..."
 
-          if [ "$CONTAINER_STATUS" != "running" ]; then
-            echo "❌ Container is not running!"
-            echo "Container logs:"
-            docker logs test-container
-            exit 1
-          fi
+            if curl -sf http://localhost:8071/health > /dev/null 2>&1; then
+              echo "✅ Health check passed"
+              curl -s http://localhost:8071/health | jq .
+              exit 0
+            fi
 
-          if [ "$RESTART_COUNT" -gt 0 ]; then
-            echo "❌ Container has restarted $RESTART_COUNT times!"
-            echo "Container logs:"
-            docker logs test-container
-            exit 1
-          fi
+            sleep 2
+          done
 
-          echo "✅ Container started successfully"
+          echo "❌ Health check failed after $MAX_ATTEMPTS attempts"
+          echo "Container logs:"
+          docker logs portal-app
+          exit 1
 
       - name: Cleanup
         if: always()
-        run: |
-          docker stop test-container 2>/dev/null || true
-          docker rm test-container 2>/dev/null || true
+        run: docker compose -f docker-compose.dev.yml down -v
