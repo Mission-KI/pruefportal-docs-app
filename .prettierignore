@@ -1,2 +1,7 @@
 resources/js/components/ui/*
 resources/views/mail/*
+
+# Auto-generated Wayfinder route files (may contain reserved keyword issues from route params)
+resources/js/actions/*
+resources/js/routes/*
+resources/js/wayfinder/*
