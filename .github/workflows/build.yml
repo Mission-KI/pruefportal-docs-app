@@ -1,0 +1,112 @@
+name: Build
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: false
+          load: true
+          tags: pruefportal-docs-app:test
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Create test environment file
+        run: |
+          APP_KEY=$(openssl rand -base64 32)
+          cat > .env.test << EOF
+          APP_NAME="Test"
+          APP_ENV=testing
+          APP_KEY=base64:${APP_KEY}
+          APP_DEBUG=true
+          APP_URL=http://localhost:8071
+          LOG_CHANNEL=stderr
+          LOG_LEVEL=error
+          SESSION_DRIVER=file
+          CACHE_STORE=file
+          QUEUE_CONNECTION=sync
+          DB_CONNECTION=sqlite
+          DB_DATABASE=:memory:
+          EOF
+          # Remove leading whitespace from each line
+          sed -i 's/^[[:space:]]*//' .env.test
+          echo "Generated .env.test:"
+          cat .env.test
+
+      - name: Run container and verify startup
+        run: |
+          echo "Starting container..."
+          docker run -d \
+            --name test-container \
+            --env-file .env.test \
+            -p 8071:8071 \
+            pruefportal-docs-app:test
+
+          echo "Waiting for container to stabilize..."
+          sleep 10
+
+          echo "Checking container status..."
+          CONTAINER_STATUS=$(docker inspect --format='{{.State.Status}}' test-container)
+          RESTART_COUNT=$(docker inspect --format='{{.RestartCount}}' test-container)
+
+          echo "Container status: $CONTAINER_STATUS"
+          echo "Restart count: $RESTART_COUNT"
+
+          if [ "$CONTAINER_STATUS" != "running" ]; then
+            echo "❌ Container is not running!"
+            echo "Container logs:"
+            docker logs test-container
+            exit 1
+          fi
+
+          if [ "$RESTART_COUNT" -gt 0 ]; then
+            echo "❌ Container has restarted $RESTART_COUNT times!"
+            echo "Container logs:"
+            docker logs test-container
+            exit 1
+          fi
+
+          echo "✅ Container started successfully"
+
+      - name: Verify health endpoint
+        run: |
+          echo "Checking health endpoint..."
+          MAX_ATTEMPTS=30
+          ATTEMPT=0
+
+          while [ $ATTEMPT -lt $MAX_ATTEMPTS ]; do
+            ATTEMPT=$((ATTEMPT + 1))
+            echo "Attempt $ATTEMPT/$MAX_ATTEMPTS..."
+
+            if curl -sf http://localhost:8071/health > /dev/null 2>&1; then
+              echo "✅ Health check passed"
+              exit 0
+            fi
+
+            sleep 2
+          done
+
+          echo "❌ Health check failed after $MAX_ATTEMPTS attempts"
+          echo "Container logs:"
+          docker logs test-container
+          exit 1
+
+      - name: Cleanup
+        if: always()
+        run: |
+          docker stop test-container 2>/dev/null || true
+          docker rm test-container 2>/dev/null || true
